@@ -1,4 +1,5 @@
 class SolidusPaypalBraintree::TransactionsController < Spree::StoreController
+  protect_from_forgery with: :exception, unless: -> { request.format.json? }
   class InvalidImportError < StandardError; end
 
   PERMITTED_BRAINTREE_TRANSACTION_PARAMS = [
@@ -16,7 +17,6 @@ class SolidusPaypalBraintree::TransactionsController < Spree::StoreController
     transaction = SolidusPaypalBraintree::Transaction.new transaction_params
     import = SolidusPaypalBraintree::TransactionImport.new(current_order, transaction)
     restart_checkout = params[:options] && params[:options][:restart_checkout] == "true"
-
     respond_to do |format|
       if import.valid?
         import.import!(import_state, restart_checkout: restart_checkout)
